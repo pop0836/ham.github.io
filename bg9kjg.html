@@ -182,6 +182,66 @@
         .photo-caption {
             padding: 8px 10px;
             font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .photo-item img {
+            display: block;
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #dfe7f4;
+        }
+        .gallery-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0 16px;
+        }
+        .gallery-toolbar button,
+        .gallery-delete,
+        .admin-login-btn,
+        .admin-logout-btn {
+            background: #3a6090;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 7px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .gallery-toolbar button:hover,
+        .gallery-delete:hover,
+        .admin-login-btn:hover,
+        .admin-logout-btn:hover {
+            background: #2c4a70;
+        }
+        .gallery-delete {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .admin-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            background: #f3f8ff;
+            border: 1px solid #dce9ff;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+        .admin-panel input {
+            padding: 8px 10px;
+            border: 1px solid #c5d2ea;
+            border-radius: 4px;
+            min-width: 180px;
+        }
+        .hidden {
+            display: none !important;
         }
         footer {
             text-align: center;
@@ -344,7 +404,12 @@
     <div id="log" class="page-view">
         <div class="section">
             <h2>近期通联记录</h2>
-            <div class="adif-toolbar">
+            <div class="admin-panel" id="adminPanel">
+                <input type="password" id="adminPasswordInput" placeholder="请输入管理员密码">
+                <button class="admin-login-btn" id="adminLoginBtn" type="button">管理员登录</button>
+                <button class="admin-logout-btn hidden" id="adminLogoutBtn" type="button">退出登录</button>
+            </div>
+            <div class="adif-toolbar admin-only hidden">
                 <input type="file" id="adifFileInput" accept=".adif,.adi">
                 <button id="btnClearImport">清空导入记录</button>
                 <span style="font-size:13px;margin-left:8px;">导入ADIF/ADI，兼容FT8CN小写导出文件，本地持久保存</span>
@@ -372,21 +437,18 @@
     <div id="gallery" class="page-view">
         <div class="section">
             <h2>电台相册</h2>
-            <div class="photo-grid">
-                <div class="photo-item">
-                    <div class="placeholder">设备照片占位</div>
-                    <div class="photo-caption">电台整机</div>
-                </div>
-                <div class="photo-item">
-                    <div class="placeholder">天线照片占位</div>
-                    <div class="photo-caption">天线架设</div>
-                </div>
-                <div class="photo-item">
-                    <div class="placeholder">野外架台</div>
-                    <div class="photo-caption">野外架台活动</div>
-                </div>
+            <div class="admin-panel" id="galleryAdminPanel">
+                <input type="password" id="galleryAdminPasswordInput" placeholder="请输入管理员密码">
+                <button class="admin-login-btn" id="galleryAdminLoginBtn" type="button">管理员登录</button>
+                <button class="admin-logout-btn hidden" id="galleryAdminLogoutBtn" type="button">退出登录</button>
             </div>
-            <p style="margin-top:14px;font-size:14px;color:#555;">替换图片：把placeholder的div替换成 &lt;img src="xxx.jpg" style="width:100%;display:block;"&gt;。</p>
+            <div class="gallery-toolbar admin-only hidden" id="galleryAdminTools">
+                <input type="file" id="galleryFileInput" accept="image/*" multiple>
+                <button id="btnUploadGallery" type="button">上传照片</button>
+                <button id="btnClearGallery" type="button">清空相册</button>
+            </div>
+            <div id="galleryGrid" class="photo-grid"></div>
+            <p style="margin-top:14px;font-size:14px;color:#555;">说明：上传的图片会保存在当前浏览器本地，便于临时展示和备份；清除浏览器缓存后会丢失。</p>
         </div>
     </div>
 
@@ -405,6 +467,190 @@ buttons.forEach(btn => {
         document.getElementById(targetId).classList.add('active');
     }
 })
+
+// ================= 管理员权限控制（静态站点本地版） =================
+const ADMIN_PASSWORD = 'bg9kjg-admin';
+const ADMIN_SESSION_KEY = 'bg9kjg_admin_logged_in';
+
+function isAdminLoggedIn(){
+    return localStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+}
+
+function applyAdminState(){
+    const adminOnlyBlocks = document.querySelectorAll('.admin-only');
+    const adminLoginButtons = document.querySelectorAll('.admin-login-btn');
+    const adminLogoutButtons = document.querySelectorAll('.admin-logout-btn');
+    const loggedIn = isAdminLoggedIn();
+
+    adminOnlyBlocks.forEach(block => {
+        block.classList.toggle('hidden', !loggedIn);
+    });
+    adminLoginButtons.forEach(btn => {
+        btn.classList.toggle('hidden', loggedIn);
+    });
+    adminLogoutButtons.forEach(btn => {
+        btn.classList.toggle('hidden', !loggedIn);
+    });
+}
+
+function loginAsAdmin(passwordInputId){
+    const pass = document.getElementById(passwordInputId).value.trim();
+    if(pass === ADMIN_PASSWORD){
+        localStorage.setItem(ADMIN_SESSION_KEY, 'true');
+        applyAdminState();
+        document.getElementById(passwordInputId).value = '';
+        return true;
+    }
+    alert('管理员密码错误');
+    return false;
+}
+
+function logoutAdmin(){
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+    applyAdminState();
+    document.getElementById('adminPasswordInput').value = '';
+    document.getElementById('galleryAdminPasswordInput').value = '';
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', function(){
+    loginAsAdmin('adminPasswordInput');
+});
+
+document.getElementById('galleryAdminLoginBtn').addEventListener('click', function(){
+    loginAsAdmin('galleryAdminPasswordInput');
+});
+
+document.getElementById('adminLogoutBtn').addEventListener('click', logoutAdmin);
+document.getElementById('galleryAdminLogoutBtn').addEventListener('click', logoutAdmin);
+
+document.getElementById('adminPasswordInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') loginAsAdmin('adminPasswordInput');
+});
+
+document.getElementById('galleryAdminPasswordInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') loginAsAdmin('galleryAdminPasswordInput');
+});
+
+// ================= 相册上传模块 =================
+const galleryInput = document.getElementById('galleryFileInput');
+const galleryGrid = document.getElementById('galleryGrid');
+const btnUploadGallery = document.getElementById('btnUploadGallery');
+const btnClearGallery = document.getElementById('btnClearGallery');
+const GALLERY_STORAGE_KEY = 'bg9kjg_gallery_images';
+const defaultGalleryItems = [
+    { caption: '电台整机', placeholder: true },
+    { caption: '天线架设', placeholder: true },
+    { caption: '野外架台活动', placeholder: true }
+];
+
+function getGalleryImages(){
+    const stored = localStorage.getItem(GALLERY_STORAGE_KEY);
+    if(!stored) return [];
+    try {
+        return JSON.parse(stored);
+    } catch(e) {
+        return [];
+    }
+}
+
+function saveGalleryImages(images){
+    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(images));
+}
+
+function buildPlaceholderGalleryItem(caption){
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `
+        <div class="placeholder">${caption}</div>
+        <div class="photo-caption"><span>${caption}</span></div>
+    `;
+    return item;
+}
+
+function buildUploadedGalleryItem(data, index){
+    const item = document.createElement('div');
+    item.className = 'photo-item';
+    item.innerHTML = `
+        <img src="${data.src}" alt="${data.caption}">
+        <div class="photo-caption">
+            <span>${data.caption || '相册图片'}</span>
+            <button class="gallery-delete" type="button" data-index="${index}">删除</button>
+        </div>
+    `;
+    return item;
+}
+
+function renderGallery(){
+    const uploaded = getGalleryImages();
+    galleryGrid.innerHTML = '';
+
+    if(uploaded.length === 0){
+        defaultGalleryItems.forEach(item => {
+            galleryGrid.appendChild(buildPlaceholderGalleryItem(item.caption));
+        });
+        return;
+    }
+
+    uploaded.forEach((item, index) => {
+        galleryGrid.appendChild(buildUploadedGalleryItem(item, index));
+    });
+}
+
+btnUploadGallery.addEventListener('click', function(){
+    galleryInput.click();
+});
+
+galleryInput.addEventListener('change', function(e){
+    const files = Array.from(e.target.files || []);
+    if(files.length === 0) return;
+
+    const pending = files.map(file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve({
+                src: reader.result,
+                caption: file.name.replace(/\.[^/.]+$/, '') || '相册图片'
+            });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    }));
+
+    Promise.all(pending).then(results => {
+        const merged = [...getGalleryImages(), ...results];
+        try {
+            saveGalleryImages(merged);
+            renderGallery();
+            galleryInput.value = '';
+        } catch (err) {
+            alert('图片过大或数量过多，浏览器本地存储不足，建议减少图片后再上传。');
+        }
+    }).catch(() => {
+        alert('图片读取失败，请重试。');
+    });
+});
+
+galleryGrid.addEventListener('click', function(e){
+    const deleteBtn = e.target.closest('.gallery-delete');
+    if(!deleteBtn) return;
+
+    const index = Number(deleteBtn.dataset.index);
+    const items = getGalleryImages();
+    items.splice(index, 1);
+    saveGalleryImages(items);
+    renderGallery();
+});
+
+btnClearGallery.addEventListener('click', function(){
+    localStorage.removeItem(GALLERY_STORAGE_KEY);
+    renderGallery();
+    galleryInput.value = '';
+});
+
+// 页面初始化时先渲染相册
+window.addEventListener('DOMContentLoaded', () => {
+    renderGallery();
+});
 
 // ================= ADIF解析模块 + localStorage持久化 =================
 const adifInput = document.getElementById('adifFileInput');
