@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BG9KJG | Amateur Radio Station</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #f3f6fa;
+            color: #222;
+            line-height: 1.7;
+            padding: 20px;
+        }
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(30, 60, 100, 0.1);
+            overflow: hidden;
+        }
+        /*头部横幅*/
+        .header-bar {
+            background: linear-gradient(135deg, #2c4a70, #3a6090);
+            color: #fff;
+            padding: 22px 30px;
+        }
+        .header-bar h1 {
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+        .header-bar .sub-title {
+            opacity: 0.85;
+            font-size: 15px;
+            margin-top: 6px;
+        }
+        /*导航菜单*/
+        .nav-bar {
+            background: #233b58;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .nav-bar button {
+            color: #cbd5e1;
+            background: transparent;
+            border: none;
+            text-decoration: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+        .nav-bar button:hover {
+            background: #3a5880;
+            color: #fff;
+        }
+        .nav-bar button.active {
+            background: #3a6090;
+            color: #ffffff;
+        }
+        /*内容页面切换核心*/
+        .page-view {
+            display: none;
+        }
+        .page-view.active {
+            display: block;
+        }
+        .section {
+            padding: 24px 30px;
+            border-bottom: 1px solid #e4e9f0;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        .section h2 {
+            color: #2c4a70;
+            font-size: 20px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lang-tag {
+            font-size: 13px;
+            opacity: 0.65;
+            font-weight: normal;
+        }
+        .intro-text {
+            margin-bottom: 12px;
+        }
+        .tip-text {
+            background: #f0f6ff;
+            padding: 10px 14px;
+            border-left: 4px solid #4477bb;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+        .list-group {
+            list-style: none;
+        }
+        .list-group li {
+            padding: 6px 0;
+            font-size: 15px;
+        }
+        .list-group li::before {
+            content: "- ";
+            color: #3a6090;
+            font-weight: bold;
+        }
+        /*奖状表格*/
+        .award-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .award-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        .award-table tr:nth-child(odd) {
+            background-color: #f8fafd;
+        }
+        .award-table td {
+            padding: 10px 12px;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        .award-name {
+            font-weight: 500;
+            color: #2c4a70;
+        }
+        .award-date {
+            color: #666;
+            font-size: 13px;
+        }
+        .endorsement {
+            font-size: 12px;
+            color: #444;
+            margin-top: 4px;
+        }
+        /*日志表格*/
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .log-table th,
+        .log-table td {
+            border: 1px solid #e2e8f0;
+            padding: 9px;
+            font-size: 14px;
+        }
+        .log-table th {
+            background: #e8eff8;
+            color: #2c4a70;
+        }
+        /*相册网格*/
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 12px;
+        }
+        .photo-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f9fafc;
+        }
+        .photo-item .placeholder {
+            height: 160px;
+            background: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+        }
+        .photo-caption {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 13px;
+            color: #777;
+            background: #f7f9fc;
+        }
+        /* ADIF导入工具栏样式 */
+        .adif-toolbar{
+            margin-bottom:16px;
+            padding:12px 14px;
+            background:#f0f6ff;
+            border-radius:6px;
+            border-left:4px solid #4477bb;
+        }
+        .adif-toolbar button{
+            padding:5px 12px;
+            margin-left:8px;
+        }
+        .parse-status{
+            font-size:12px;
+            margin-top:6px;
+            color:#2c4a70;
+        }
+        /*手机适配*/
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .header-bar {
+                padding: 16px 20px;
+            }
+            .section {
+                padding: 18px 20px;
+            }
+            .award-table td {
+                padding: 8px 6px;
+            }
+            .nav-bar button {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+            .log-table th,
+            .log-table td {
+                padding: 6px 4px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-bar">
+        <h1>BG9KJG China</h1>
+        <div class="sub-title">QRZ‑Style Personal Station Page | Amateur Radio</div>
+    </div>
+
+    <!--导航按钮-->
+    <div class="nav-bar">
+        <button data-target="home" class="active">首页</button>
+        <button data-target="about">关于</button>
+        <button data-target="qsl">换卡 QSL</button>
+        <button data-target="log">通联日志</button>
+        <button data-target="gallery">相册</button>
+    </div>
+
+    <!--首页-->
+    <div id="home" class="page-view active">
+        <div class="section">
+            <h2>电台简介 <span class="lang-tag">Station Intro</span></h2>
+            <div class="intro-text">
+                BG9KJG，中国业余无线电爱好者，驻地甘肃天水。主要操作HF短波、V/UHF，喜欢FT‑8、SSB、FM模式，热衷本地通联、DX追逐、野外架台。欢迎各位友台QSO，QSL卡片有条件必回。
+            </div>
+        </div>
+        <div class="section">
+            <h2>我的设备 <span class="lang-tag">Devices</span></h2>
+            <ul class="list-group">
+                <li>HF：Icom IC‑705</li>
+                <li>HF： YAESU FT-80C</li>
+                <li>V/UHF：UV‑98Plus</li>
+                <li>手持机：宝锋系列</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>天线 <span class="lang-tag">Antennas</span></h2>
+            <ul class="list-group">
+                <li>端馈天线 </li>
+                <li>长线天线+天调</li>
+                <li>GP垂直天线</li>
+                <li>小环天线</li>
+            </ul>
+        </div>
+        <div class="section">
+            <h2>奖状 <span class="lang-tag">Awards</span></h2>
+            <table class="award-table">
+                <tr>
+                    <td>
+                        <div class="award-name">DX World Award</div>
+                        <div class="award-date">暂无</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="award-name">World Radio Friendship Award</div>
+                        <div class="award-date">暂无</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!--关于-->
+    <div id="about" class="page-view">
+        <div class="section">
+            <h2>个人介绍</h2>
+            <p>呼号：BG9KJG，驻地甘肃天水。业余无线电爱好者，喜欢短波、FT‑8、野外架台、天线DIY。经常在多个波段守听，欢迎友台随时呼叫。</p>
+            <br>
+            <p>主要操作模式：SSB、FT‑8、FM；常用波段：10‑40m，V/UHF本地中继。</p>
+            <div class="tip-text">
+                操作习惯：有空就会回复呼叫，遇到信号弱请多呼叫几次。
+            </div>
+        </div>
+        <div class="section">
+            <h2>地理位置与分区信息</h2>
+            <ul style="padding-left:22px;">
+                <li>QTH：甘肃天水</li>
+                <li>CQ Zone：24</li>
+                <li>ITU Zone：44</li>
+                <li>Grid：OM24</li>
+            </ul>
+        </div>
+    </div>
+
+    <!--QSL换卡-->
+    <div id="qsl" class="page-view">
+        <div class="section">
+            <h2>QSL卡片交换说明</h2>
+            <div class="tip-text">
+                请尽量使用回邮信封+邮票，直接寄来我会尽量回卡。
+            </div>
+            <ul style="padding-left:22px;">
+                <li>呼号：BG9KJG</li>
+                <li>QSL方式：直寄(DIR)，暂无QSL管理局</li>
+                <li>e‑QSL：支持eQSL.cc</li>
+                <li>QRZ：支持QRZ Logbook</li>
+            </ul>
+            <br>
+            <p>邮寄地址：甘肃省天水市秦州区中心广场金龙大厦八楼  邮编：741000  李先生收</p>
+        </div>
+        <div class="section">
+            <h2>换卡提示</h2>
+            <p>1. 直寄请附带SAE回邮信封与足额邮票，无回邮条件不保证实卡回寄。</p>
+            <p>2. FT‑8数字通联优先e‑QSL确认。</p>
+            <p>3. 卡片处理周期：1‑3个月。</p>
+        </div>
+    </div>
+
+    <!--通联日志【已增加ADIF导入控件 + localStorage持久化】-->
+    <div id="log" class="page-view">
+        <div class="section">
+            <h2>近期通联记录</h2>
+            <div class="adif-toolbar">
+                <input type="file" id="adifFileInput" accept=".adif,.adi">
+                <button id="btnClearImport">清空导入记录</button>
+                <span style="font-size:13px;margin-left:8px;">导入ADIF/ADI，兼容FT8CN小写导出文件，本地持久保存</span>
+                <div id="parseStatus" class="parse-status"></div>
+            </div>
+            <table class="log-table">
+                <thead>
+                <tr>
+                    <th>日期时间</th>
+                    <th>对方呼号</th>
+                    <th>波段</th>
+                    <th>模式</th>
+                    <th>RST</th>
+                </tr>
+                </thead>
+                <tbody id="logTableBody">
+                <tr>
+                    <td>2026‑08‑01 12:30</td>
+                    <td>BG9KJG</td>
+                    <td>20m</td>
+                    <td>FT‑8</td>
+                    <td>-07‑07</td>
+                </tr>
+                <tr>
+                    <td>2026‑08‑02 09:15</td>
+                    <td>BG8XXX</td>
+                    <td>40m</td>
+                    <td>SSB</td>
+                    <td>59‑59</td>
+                </tr>
+                </tbody>
+            </table>
+            <p style="margin-top:12px;font-size:14px;color:#555;">提示：复制&lt;tr&gt;&lt;/tr&gt;增加通联记录。完整日志建议导出ADIF上传QRZ日志库。浏览器本地存储导入日志，清除浏览器数据会丢失。</p>
+        </div>
+    </div>
+
+    <!--相册-->
+    <div id="gallery" class="page-view">
+        <div class="section">
+            <h2>电台相册</h2>
+            <div class="photo-grid">
+                <div class="photo-item">
+                    <div class="placeholder">设备照片占位</div>
+                    <div class="photo-caption">电台整机</div>
+                </div>
+                <div class="photo-item">
+                    <div class="placeholder">天线照片占位</div>
+                    <div class="photo-caption">天线架设</div>
+                </div>
+                <div class="photo-item">
+                    <div class="placeholder">野外架台</div>
+                    <div class="photo-caption">野外架台活动</div>
+                </div>
+            </div>
+            <p style="margin-top:14px;font-size:14px;color:#555;">替换图片：把placeholder的div替换成 &lt;img src="xxx.jpg" style="width:100%;display:block;"&gt;。</p>
+        </div>
+    </div>
+
+    <footer>BG9KJG Amateur Radio Station</footer>
+</div>
+
+<script>
+// 页面切换JS（保留原有逻辑）
+const buttons = document.querySelectorAll('.nav-bar button');
+buttons.forEach(btn => {
+    btn.onclick = function(){
+        const targetId = this.getAttribute('data-target');
+        buttons.forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+    }
+})
+
+// ================= ADIF解析模块 + localStorage持久化 =================
+const adifInput = document.getElementById('adifFileInput');
+const logBody = document.getElementById('logTableBody');
+const btnClearImport = document.getElementById('btnClearImport');
+const parseStatus = document.getElementById('parseStatus');
+const STORAGE_KEY = "bg9kjg_qso_log";
+
+/** ADIF日期 YYYYMMDD → YYYY‑MM‑DD */
+function parseAdifDate(s){
+    if(!s || s.length!==8) return s||"";
+    return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+}
+/** ADIF 6位时间 HHMMSS → HH:MM:SS */
+function parseAdifTime(s){
+    if(!s || s.length <4) return "";
+    return `${s.slice(0,2)}:${s.slice(2,4)}:${s.slice(4,6)}`;
+}
+
+/** 增强ADIF解析，兼容FT8CN小写 <eor>，去除全部换行 */
+function parseAdifText(rawText){
+    let text = rawText.replace(/[\r\n]/g,"");
+    const rawRecords = text.split(/<eor>/i);
+    const qsoList = [];
+    for(let rec of rawRecords){
+        rec = rec.trim();
+        if(!rec) continue;
+        const qso = {};
+        const fieldReg = /<([A-Z0-9_]+):\d+>([^<]*)/gi;
+        let match;
+        while((match = fieldReg.exec(rec)) !== null){
+            const key = match[1].toUpperCase();
+            const val = match[2].trim();
+            qso[key] = val;
+        }
+        if(qso.CALL && qso.CALL.length>0){
+            qsoList.push(qso);
+        }
+    }
+    return qsoList;
+}
+
+/** 将QSO渲染为表格行 */
+function renderQso(qso){
+    const dateStr = parseAdifDate(qso.QSO_DATE || qso.QSO_DATE_OFF || "");
+    const timeStr = parseAdifTime(qso.TIME_ON || qso.TIME_OFF || "");
+    const dt = (dateStr + " " + timeStr).trim();
+    const call = qso.CALL || "";
+    const band = qso.BAND || "";
+    const mode = qso.MODE || "";
+    const rstSent = qso.RST_SENT ?? "";
+    const rstRcvd = qso.RST_RCVD ?? "";
+    let rst = "";
+    if(rstSent || rstRcvd){
+        rst = rstSent + "-" + rstRcvd;
+    }
+    const tr = document.createElement('tr');
+    tr.className="adif-import-row";
+    tr.innerHTML = `
+        <td>${dt}</td>
+        <td>${call}</td>
+        <td>${band}</td>
+        <td>${mode}</td>
+        <td>${rst}</td>
+    `;
+    logBody.appendChild(tr);
+}
+
+// 从localStorage读取全部日志并渲染
+function loadFromStorage(){
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if(!stored) return [];
+    try{
+        const arr = JSON.parse(stored);
+        arr.forEach(q=>renderQso(q));
+        return arr;
+    }catch(e){
+        return [];
+    }
+}
+
+// 保存数组到localStorage
+function saveToStorage(qsoArray){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(qsoArray));
+}
+
+// 获取当前本地存储内全部QSO
+function getStoredQsos(){
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if(!stored) return [];
+    try{
+        return JSON.parse(stored);
+    }catch(e){
+        return [];
+    }
+}
+
+// 文件选择事件：追加导入，合并到本地存储
+adifInput.addEventListener('change', function(e){
+    parseStatus.innerText = "";
+    const file = e.target.files[0];
+    if(!file) return;
+    const readerUtf8 = new FileReader();
+    readerUtf8.onload = function(ev){
+        const content = ev.target.result;
+        const newQsos = parseAdifText(content);
+        if(newQsos.length === 0){
+            const readerGBK = new FileReader();
+            readerGBK.onload = function(e2){
+                const gbkContent = e2.target.result;
+                const qsosGbk = parseAdifText(gbkContent);
+                if(qsosGbk.length>0){
+                    // 追加
+                    const all = [...getStoredQsos(), ...qsosGbk];
+                    saveToStorage(all);
+                    qsosGbk.forEach(q=>renderQso(q));
+                    parseStatus.innerText = `GBK编码解析成功：新增导入 ${qsosGbk.length} 条QSO，总计本地${all.length}条`;
+                }else{
+                    parseStatus.innerText = "解析失败，未识别到QSO记录";
+                    alert("解析不到QSO记录，请确认adi/adif文件");
+                }
+            };
+            readerGBK.readAsText(file,"gbk");
+            return;
+        }
+        // UTF8解析成功，追加保存
+        const allQsos = [...getStoredQsos(), ...newQsos];
+        saveToStorage(allQsos);
+        newQsos.forEach(q=>renderQso(q));
+        parseStatus.innerText = `UTF‑8解析成功：新增导入 ${newQsos.length} 条QSO，本地合计${allQsos.length}条`;
+    };
+    readerUtf8.readAsText(file,"utf-8");
+});
+
+// 清空：删除DOM + 删除localStorage
+btnClearImport.addEventListener('click',()=>{
+    const importRows = logBody.querySelectorAll('.adif-import-row');
+    importRows.forEach(r=>r.remove());
+    localStorage.removeItem(STORAGE_KEY);
+    adifInput.value = "";
+    parseStatus.innerText = "已清除全部导入记录（本地存储已清空）";
+})
+
+// 页面初始化加载存储数据
+window.addEventListener('DOMContentLoaded',()=>{
+    loadFromStorage();
+})
+</script>
+</body>
+</html>
