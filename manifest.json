@@ -1,0 +1,10 @@
+{
+  "adi_files": [
+    "0901.adi"
+  ],
+  "images": [
+    {"src":"img/diantai.jpg","caption":"IC‑705电台桌面架设"},
+    {"src":"img/jiashe.jpg","caption":"端馈天线户外架设"}
+    {"src":"img/huwai.jpg","caption":"户外野架"}
+  ]
+}

@@ -491,25 +491,37 @@ function applyAdminState(){
     adminLogoutButtons.forEach(btn => {
         btn.classList.toggle('hidden', !loggedIn);
     });
+
+    const adminInputs = [
+        document.getElementById('adminPasswordInput'),
+        document.getElementById('galleryAdminPasswordInput')
+    ];
+    adminInputs.forEach(input => {
+        if (input) {
+            input.value = '';
+            input.placeholder = loggedIn ? '已登录管理员' : '请输入管理员密码';
+        }
+    });
 }
 
 function loginAsAdmin(passwordInputId){
-    const pass = document.getElementById(passwordInputId).value.trim();
+    const input = document.getElementById(passwordInputId);
+    if(!input) return false;
+
+    const pass = input.value.trim();
     if(pass === ADMIN_PASSWORD){
         localStorage.setItem(ADMIN_SESSION_KEY, 'true');
         applyAdminState();
-        document.getElementById(passwordInputId).value = '';
         return true;
     }
     alert('管理员密码错误');
+    input.value = '';
     return false;
 }
 
 function logoutAdmin(){
     localStorage.removeItem(ADMIN_SESSION_KEY);
     applyAdminState();
-    document.getElementById('adminPasswordInput').value = '';
-    document.getElementById('galleryAdminPasswordInput').value = '';
 }
 
 document.getElementById('adminLoginBtn').addEventListener('click', function(){
@@ -530,6 +542,8 @@ document.getElementById('adminPasswordInput').addEventListener('keydown', functi
 document.getElementById('galleryAdminPasswordInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter') loginAsAdmin('galleryAdminPasswordInput');
 });
+
+applyAdminState();
 
 // ================= 相册上传模块 =================
 const galleryInput = document.getElementById('galleryFileInput');
